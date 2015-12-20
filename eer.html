@@ -12,6 +12,7 @@
     <script type="text/babel">
 
     var newEntity = function(entityName,x,y){
+        //new nodes arent able to be deleted bc jquery .click() method for '.erd' isnt re-run (tested this)
         var Ent = new erd.Entity({
           position: { x: x, y: y},
           attrs: {
