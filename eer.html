@@ -11,26 +11,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
     <script type="text/babel">
 
-    // var newEntity = function(entityName,position){
-    //     var {x,y} = position;
-    //     var Ent = new erd.Entity({
-    //       position: { x: x, y: y},
-    //       attrs: {
-    //           text: {
-    //               fill: '#ffffff',
-    //               text: entityName,
-    //               'letter-spacing': 0,
-    //               style: { 'text-shadow': '1px 0 1px #333333' }
-    //           },
-    //           '.outer, .inner': {
-    //               fill: '#31d0c6',
-    //               stroke: 'none',
-    //               filter: { name: 'dropShadow',  args: { dx: 0.5, dy: 2, blur: 2, color: '#333333' }}
-    //           }
-    //       }
-    //     })
-    //     graph.addCells([Ent]);
-    // }
+    var newEntity = function(entityName,x,y){
+        //new nodes arent able to be deleted bc jquery .click() method for '.erd' isnt re-run (tested this)
+        var Ent = new erd.Entity({
+          position: { x: x, y: y},
+          attrs: {
+              text: {
+                  fill: '#ffffff',
+                  text: entityName,
+                  'letter-spacing': 0,
+                  style: { 'text-shadow': '1px 0 1px #333333' }
+              },
+              '.outer, .inner': {
+                  fill: '#31d0c6',
+                  stroke: 'none',
+                  filter: { name: 'dropShadow',  args: { dx: 0.5, dy: 2, blur: 2, color: '#333333' }}
+              }
+          }
+        })
+        graph.addCells([Ent]);
+    }
 
     class Paper extends React.Component{
 
@@ -38,33 +38,65 @@
         super();
         this.state =
         {
-          clicked:false,
-          btnTitle:'Delete an item'
+          delButtonTitle:'Delete an item',
+          delClicked:false,
+          entButtonTitle:'Add an entity',
+          entClicked:false
         };
 
         var self = this;//I know...
         $('.erd').click(function(){
-          if (self.state.clicked){
+          if (self.state.delClicked){
             this.remove();
           }
         });
+
+        $('#paper').click(function(event){
+          if (self.state.entClicked){
+            var entityName = prompt('Enter a name for the new entity:','');
+            newEntity(entityName, event.pageX, event.pageY);
+          }
+        });
+
+        // $('.erd').click(function(){
+        //   if (self.state.delClicked){
+        //     this.remove();
+        //   }
+        // });
       }
 
       deleteClickHandler(){
-        var title;
-        if (this.state.clicked){
-          title = 'Delete an item';
-        } else {
-          title = 'Deleting...';
+        if (!this.state.delClicked){
+          this.setState({entClicked:false,entButtonTitle:'Add an entity'});
         }
-        this.setState({clicked:!this.state.clicked,btnTitle:title});
+        var delTitle;
+        if (this.state.delClicked){
+          delTitle = 'Delete an item';
+        } else {
+          delTitle = 'Deleting...';
+        }
+        this.setState({delClicked:!this.state.delClicked,delButtonTitle:delTitle});
+      }
+
+      //TODO: not """"""""""DRY""""""""""
+      entityClickHandler(){
+        if (!this.state.entClicked){
+          this.setState({delClicked:false,delButtonTitle:'Delete an item'});
+        }
+        var entTitle;
+        if (this.state.entClicked){
+          entTitle = 'Add an entity';
+        } else {
+          entTitle = 'Adding...';
+        }
+        this.setState({entClicked:!this.state.entClicked,entButtonTitle:entTitle});
       }
 
       render(){
         return (
           <div>
-            <button id='deleteButton' onClick={this.deleteClickHandler.bind(this)}>{this.state.btnTitle}</button>
-            <!--<button id='newEntityButton' onClick={this.entityClickHandler.bind(this)}>{this.state.btnTitle}</button>-->
+            <button id='deleteButton' onClick={this.deleteClickHandler.bind(this)}>{this.state.delButtonTitle}</button>
+            <button id='newEntityButton' onClick={this.entityClickHandler.bind(this)}>{this.state.entButtonTitle}</button>
           </div>
         )
       }
